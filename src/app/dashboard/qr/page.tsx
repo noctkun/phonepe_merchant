@@ -56,7 +56,6 @@ export default function QRGeneratorPage() {
       });
       setSuccessMsg('Transaction added to recent activity!');
     } catch (err: any) {
-      setError("Error generating QR code.");
     } finally {
       setLoading(false);
     }
