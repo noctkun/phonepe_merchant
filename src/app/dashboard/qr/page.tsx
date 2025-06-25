@@ -44,9 +44,10 @@ export default function QRGeneratorPage() {
         setError("Failed to generate QR code.");
       }
       // Add transaction via API
+      const merchantId = typeof window !== 'undefined' ? localStorage.getItem('merchantId') || 'demo-merchant' : 'demo-merchant';
       await axios.post('/api/transactions', {
         id: `txn_${Date.now()}`,
-        merchantId: 'demo-merchant', // Replace with actual merchantId if available
+        merchantId,
         amount: Number(amount),
         status: 'pending',
         paymentMethod: 'UPI',
@@ -62,52 +63,52 @@ export default function QRGeneratorPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <Navbar />
       <div className="flex">
         <Sidebar />
         <main className="flex-1 p-6">
-          <div className="max-w-lg mx-auto bg-white p-8 rounded-xl shadow border border-gray-200">
-            <h2 className="text-2xl font-bold mb-6 text-center">Generate UPI QR Code</h2>
+          <div className="max-w-lg mx-auto bg-white dark:bg-gray-900 p-8 rounded-xl shadow border border-gray-200 dark:border-gray-800">
+            <h2 className="text-2xl font-bold mb-6 text-center dark:text-white">Generate UPI QR Code</h2>
             <form onSubmit={handleGenerate} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">VPA (UPI ID)</label>
+                <label className="block text-sm font-medium mb-1 dark:text-gray-200">VPA (UPI ID)</label>
                 <input
                   type="text"
                   value={vpa}
                   onChange={e => setVpa(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Name</label>
+                <label className="block text-sm font-medium mb-1 dark:text-gray-200">Name</label>
                 <input
                   type="text"
                   value={name}
                   onChange={e => setName(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Amount</label>
+                <label className="block text-sm font-medium mb-1 dark:text-gray-200">Amount</label>
                 <input
                   type="number"
                   value={amount}
                   onChange={e => setAmount(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   required
                   min="1"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Order No</label>
+                <label className="block text-sm font-medium mb-1 dark:text-gray-200">Order No</label>
                 <input
                   type="text"
                   value={orderNo}
                   onChange={e => setOrderNo(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   required
                 />
               </div>
@@ -119,14 +120,14 @@ export default function QRGeneratorPage() {
                 {loading ? "Generating..." : "Generate QR"}
               </button>
             </form>
-            {error && <div className="mt-4 text-red-600 text-center">{error}</div>}
+            {error && <div className="mt-4 text-red-600 dark:text-red-400 text-center">{error}</div>}
             {qrUrl && (
               <div className="mt-8 flex flex-col items-center">
                 <img src={qrUrl} alt="UPI QR Code" className="w-48 h-48 object-contain border rounded" />
-                <p className="mt-2 text-sm text-gray-600">Scan this QR to pay</p>
+                <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">Scan this QR to pay</p>
               </div>
             )}
-            {successMsg && <div className="mt-4 text-green-600 text-center">{successMsg}</div>}
+            {successMsg && <div className="mt-4 text-green-600 dark:text-green-400 text-center">{successMsg}</div>}
           </div>
         </main>
       </div>

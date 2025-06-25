@@ -27,11 +27,11 @@ export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <aside className={`bg-white shadow-sm border-r border-gray-200 min-h-screen transition-all duration-200 ${collapsed ? 'w-20' : 'w-64'}`}>
+    <aside className={`bg-white dark:bg-gray-900 shadow-sm border-r border-gray-200 dark:border-gray-800 min-h-screen transition-all duration-200 ${collapsed ? 'w-20' : 'w-64'}`}>
       <div className="flex items-center justify-end p-2">
         <button
           onClick={() => setCollapsed((prev) => !prev)}
-          className="p-1 rounded hover:bg-gray-100 focus:outline-none"
+          className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none"
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           {collapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
@@ -47,8 +47,8 @@ export default function Sidebar() {
                   href={item.href}
                   className={`flex items-center ${collapsed ? 'justify-center' : 'space-x-3'} px-4 py-3 rounded-lg transition-colors ${
                     isActive
-                      ? 'bg-purple-50 text-purple-600 border-r-2 border-purple-600'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
+                      ? 'bg-purple-50 dark:bg-purple-900 text-purple-600 dark:text-purple-300 border-r-2 border-purple-600 dark:border-purple-400'
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-800 dark:hover:text-white'
                   }`}
                 >
                   <item.icon size={20} />
