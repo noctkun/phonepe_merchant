@@ -6,5 +6,13 @@
     "businessName": "noct",
     "createdAt": "2025-06-25T13:56:34.821Z",
     "isVerified": true
+  },
+  {
+    "merchantId": "5431",
+    "phoneNumber": "+917339362693",
+    "password": "4321",
+    "businessName": "no",
+    "createdAt": "2025-06-25T20:13:46.341Z",
+    "isVerified": true
   }
 ]

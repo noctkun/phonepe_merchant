@@ -14,7 +14,7 @@ export async function GET(request: Request) {
     }
 
     // Get only real transactions
-    let transactions = getMerchantTransactions(merchantId);
+    let transactions = await getMerchantTransactions(merchantId);
 
     // Calculate analytics
     const totalTransactions = transactions.length;

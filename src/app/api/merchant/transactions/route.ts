@@ -16,7 +16,7 @@ export async function GET(request: Request) {
     }
 
     // Get only real transactions
-    let transactions = getMerchantTransactions(merchantId);
+    let transactions = await getMerchantTransactions(merchantId);
 
     // Sort by timestamp (newest first)
     transactions.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());

@@ -1,7 +1,7 @@
 import { getMerchantById } from './data';
 
-export const validateMerchant = (merchantId: string, password: string): boolean => {
-  const merchant = getMerchantById(merchantId);
+export const validateMerchant = async (merchantId: string, password: string): Promise<boolean> => {
+  const merchant = await getMerchantById(merchantId);
   return merchant ? merchant.password === password && merchant.isVerified : false;
 };
 

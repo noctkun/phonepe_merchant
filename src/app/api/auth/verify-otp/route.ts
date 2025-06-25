@@ -23,7 +23,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Create merchant account
+    // Create merchant account with correct camelCase keys
     const merchant: Merchant = {
       merchantId: merchantData.merchantId,
       phoneNumber: merchantData.phoneNumber,
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
       isVerified: true
     };
 
-    saveMerchant(merchant);
+    await saveMerchant(merchant);
 
     return NextResponse.json({ 
       success: true, 

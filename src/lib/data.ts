@@ -1,24 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import { supabase } from './supabase';
 import { Merchant, Transaction } from '@/types';
-
-const DATA_DIR = path.join(process.cwd(), 'data');
-const MERCHANTS_FILE = path.join(DATA_DIR, 'merchants.json');
-const TRANSACTIONS_FILE = path.join(DATA_DIR, 'transactions.json');
-
-// Ensure data directory exists
-if (!fs.existsSync(DATA_DIR)) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
-}
-
-// Initialize files if they don't exist
-if (!fs.existsSync(MERCHANTS_FILE)) {
-  fs.writeFileSync(MERCHANTS_FILE, JSON.stringify([]));
-}
-
-if (!fs.existsSync(TRANSACTIONS_FILE)) {
-  fs.writeFileSync(TRANSACTIONS_FILE, JSON.stringify([]));
-}
 
 export const BASE_TRANSACTIONS: Transaction[] = [
   {
@@ -53,53 +34,38 @@ export const BASE_TRANSACTIONS: Transaction[] = [
   },
 ];
 
-export const getMerchants = (): Merchant[] => {
-  try {
-    const data = fs.readFileSync(MERCHANTS_FILE, 'utf8');
-    return JSON.parse(data);
-  } catch {
-    return [];
-  }
+// Get all merchants
+export const getMerchants = async (): Promise<Merchant[]> => {
+  const { data, error } = await supabase.from('merchants').select('*');
+  if (error) throw error;
+  return data || [];
 };
 
-export const saveMerchant = (merchant: Merchant): void => {
-  const merchants = getMerchants();
-  const existingIndex = merchants.findIndex(m => m.merchantId === merchant.merchantId);
-  
-  if (existingIndex >= 0) {
-    merchants[existingIndex] = merchant;
-  } else {
-    merchants.push(merchant);
-  }
-  
-  fs.writeFileSync(MERCHANTS_FILE, JSON.stringify(merchants, null, 2));
+// Save or update a merchant
+export const saveMerchant = async (merchant: Merchant): Promise<void> => {
+  const { error } = await supabase.from('merchants').upsert([merchant], { onConflict: 'merchantId' });
+  if (error) throw error;
 };
 
-export const getMerchantById = (merchantId: string): Merchant | null => {
-  const merchants = getMerchants();
-  return merchants.find(m => m.merchantId === merchantId) || null;
+// Get merchant by merchantId
+export const getMerchantById = async (merchantId: string): Promise<Merchant | null> => {
+  const { data, error } = await supabase.from('merchants').select('*').eq('merchantId', merchantId).single();
+  if (error && error.code !== 'PGRST116') throw error; // PGRST116: No rows found
+  return data || null;
 };
 
-export const getTransactions = (): Transaction[] => {
-  try {
-    const data = fs.readFileSync(TRANSACTIONS_FILE, 'utf8');
-    const parsed = JSON.parse(data);
-    if (Array.isArray(parsed) && parsed.length === 0) {
-      // Initialize with base transactions if empty
-      fs.writeFileSync(TRANSACTIONS_FILE, JSON.stringify(BASE_TRANSACTIONS, null, 2));
-      return BASE_TRANSACTIONS;
-    }
-    return parsed;
-  } catch {
-    // On error, initialize with base transactions
-    fs.writeFileSync(TRANSACTIONS_FILE, JSON.stringify(BASE_TRANSACTIONS, null, 2));
-    return BASE_TRANSACTIONS;
-  }
+// Get all transactions
+export const getTransactions = async (): Promise<Transaction[]> => {
+  const { data, error } = await supabase.from('transactions').select('*');
+  if (error) throw error;
+  return data || [];
 };
 
-export const getMerchantTransactions = (merchantId: string): Transaction[] => {
-  const transactions = getTransactions();
-  return transactions.filter(t => t.merchantId === merchantId);
+// Get transactions for a specific merchant
+export const getMerchantTransactions = async (merchantId: string): Promise<Transaction[]> => {
+  const { data, error } = await supabase.from('transactions').select('*').eq('merchantId', merchantId);
+  if (error) throw error;
+  return data || [];
 };
 
 // Generate mock transactions for demo
@@ -127,33 +93,24 @@ export const generateMockTransactions = (merchantId: string): Transaction[] => {
   return mockTransactions;
 };
 
-export function createTransaction(tx: Transaction) {
-  const transactions = getTransactions();
-  transactions.unshift(tx);
-  // Keep only the latest 20 for recent
-  if (transactions.length > 20) transactions.length = 20;
-  fs.writeFileSync(TRANSACTIONS_FILE, JSON.stringify(transactions, null, 2));
-}
+// Create a new transaction
+export const createTransaction = async (tx: Transaction): Promise<void> => {
+  const { error } = await supabase.from('transactions').insert([tx]);
+  if (error) throw error;
+};
 
-export function getAnalytics() {
-  // Use base values as initial, then add real transaction data
-  const baseTotalTransactions = 100;
-  const baseTotalAmount = 50000;
-  const baseSuccessCount = Math.round(100 * 0.985); // 98.5% of 100
-
-  const transactions = getTransactions();
-  const realTotalTransactions = transactions.length;
-  const realTotalAmount = transactions.reduce((sum, t) => t.status === 'success' ? sum + t.amount : sum, 0);
-  const realSuccessCount = transactions.filter(t => t.status === 'success').length;
-
-  const totalTransactions = baseTotalTransactions + realTotalTransactions;
-  const totalAmount = baseTotalAmount + realTotalAmount;
-  const successRate = (baseSuccessCount + realSuccessCount) / (totalTransactions) * 100;
-
+// Analytics (example: total transactions, total amount, success rate)
+export const getAnalytics = async () => {
+  const { data: transactions, error } = await supabase.from('transactions').select('*');
+  if (error) throw error;
+  const totalTransactions = transactions?.length || 0;
+  const totalAmount = transactions?.reduce((sum, t) => t.status === 'success' ? sum + t.amount : sum, 0) || 0;
+  const successCount = transactions?.filter(t => t.status === 'success').length || 0;
+  const successRate = totalTransactions > 0 ? (successCount / totalTransactions) * 100 : 0;
   return {
     totalTransactions,
     totalAmount,
     successRate: Number(successRate.toFixed(2)),
-    recentTransactions: transactions.slice(0, 5),
+    recentTransactions: transactions?.slice(0, 5) || [],
   };
-}
+};

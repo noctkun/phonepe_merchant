@@ -12,7 +12,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const isValid = validateMerchant(merchantId, password);
+    const isValid = await validateMerchant(merchantId, password);
 
     if (!isValid) {
       return NextResponse.json(

@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     }
 
     // Check if merchant already exists
-    const existingMerchant = getMerchantById(merchantId);
+    const existingMerchant = await getMerchantById(merchantId);
     if (existingMerchant) {
       return NextResponse.json(
         { error: 'Merchant ID already exists' },
